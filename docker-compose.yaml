@@ -1,0 +1,34 @@
+version: "3.8"
+
+volumes:
+  review_data: {}
+
+networks:
+  review_network:
+    driver: bridge
+  review_data_network:
+    driver: bridge
+
+services:
+  app:
+    build: ./src
+    networks:
+      - review_network
+      - review_data_network
+    depends_on:
+      - postgres
+    environment:
+      ConnectionStrings__MyConnection: Host=postgres;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+
+  postgres:
+    image: postgres:14.0
+    # ports:
+    #   - 5432:5432
+    networks:
+      - review_data_network
+    volumes:
+      - review_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
